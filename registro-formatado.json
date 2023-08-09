@@ -1,0 +1,47 @@
+{
+	"schema": {
+		"type": "struct",
+		"fields": [
+			{
+				"type": "int32",
+				"optional": false,
+				"field": "id"
+			},
+			{
+				"type": "string",
+				"optional": false,
+				"field": "first_name"
+			},
+			{
+				"type": "string",
+				"optional": false,
+				"field": "last_name"
+			},
+			{
+				"type": "string",
+				"optional": false,
+				"field": "email"
+			},
+			{
+				"type": "string",
+				"optional": true,
+				"field": "__table"
+			},
+			{
+				"type": "string",
+				"optional": true,
+				"field": "__deleted"
+			}
+		],
+		"optional": false,
+		"name": "dbserver1.inventory.customers.Value"
+	},
+	"payload": {
+		"id": 1017,
+		"first_name": "Sarah",
+		"last_name": "Thompson",
+		"email": "kitt@acme.com18",
+		"__table": "customers",
+		"__deleted": "false"
+	}
+}

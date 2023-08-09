@@ -1,0 +1,95 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+metadata:
+  labels:
+    strimzi.io/cluster: dbz-connect
+  name: dbz-mysql-connector
+spec:
+  class: io.debezium.connector.mysql.MySqlConnector 
+  tasksMax: 1  
+  config:  
+    database.hostname: mysql 
+    database.port: 3306
+    database.user: debezium  
+    database.password: dbz  
+    database.server.id: 184054
+    database.server.name: dbserver1
+    topic.prefix: dbserver1
+    # database.whitelist: inventory
+    table.whitelist: inventory.customers
+    message.key.columns: inventory.customers:id
+    schema.history.internal.kafka.bootstrap.servers: 'amq-kafka-bootstrap:9092' 
+    schema.history.internal.kafka.topic: schema-changes.inventory
+    transforms: Reroute
+    transforms.Reroute.type: io.debezium.transforms.ByLogicalTableRouter
+    transforms.Reroute.topic.regex: (.*)customers
+    transforms.Reroute.topic.replacement: customers
+
+    # transforms: unwrap
+    # transforms.unwrap.type: io.debezium.transforms.ExtractNewRecordState
+    # transforms.unwrap.drop.tombstones: false
+    # transforms.unwrap.delete.handling.mode: rewrite
+    # transforms.unwrap.add.fields: table
+    ... 
+
+    transforms: route
+    transforms.route.type: org.apache.kafka.connect.transforms.RegexRouter    
+    transforms.route.regex: ([^.]+)\\.([^.]+)\\.([^.]+)
+    transforms.route.replacement: $1_$2_$3
+    key.converter: io.confluent.connect.avro.AvroConverter
+    value.converter: io.confluent.connect.avro.AvroConverter
+    key.converter.schema.registry.url: http://schema-registry:8081
+    value.converter.schema.registry.url: http://schema-registry:8081
+
+    "transforms": "route",
+    "transforms.route.type": "org.apache.kafka.connect.transforms.RegexRouter",
+    "transforms.route.regex": "([^.]+)\\.([^.]+)\\.([^.]+)",
+    "transforms.route.replacement": "$1_$2_$3",
+    "key.converter": "io.confluent.connect.avro.AvroConverter",
+    "value.converter": "io.confluent.connect.avro.AvroConverter",
+    "key.converter.schema.registry.url": "http://schema-registry:8081",
+    "value.converter.schema.registry.url": "http://schema-registry:8081"
+
+
+    transforms.route.regex: ([^.data]+)\\.([^.]+)\\.([^.]+)
+
+    include.schema.changes: 'false'
+    schema.history.internal.kafka.bootstrap.servers: 'amq-kafka-bootstrap:9092' 
+    schema.history.internal.kafka.topic: schema-changes.inventory
+    
+
+# database.history.kafka.bootstrap.servers: amq-kafka-bootstrap:9092
+# database.history.kafka.topic: inventory-schema
+
+# transforms.route.regex: ([^.data]+)\\.([^.]+)\\.([^.]+)
+# transforms.route.replacement: $3
+
+
+
+...
+
+
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+metadata:
+  labels:
+    strimzi.io/cluster: dbz-connect
+  name: dbz-mysql-connector
+spec:
+  class: io.debezium.connector.mysql.MySqlConnector 
+  tasksMax: 1  
+  config:  
+    database.hostname: mysql 
+    database.port: 3306   
+    database.user: debezium  
+    database.password: dbz  
+    database.server.id: 184054
+    topic.prefix: dbserver1  
+    table.include.list: inventory.customers
+    include.schema.changes: 'false'
+    schema.history.internal.kafka.bootstrap.servers: 'amq-kafka-bootstrap:9092' 
+    schema.history.internal.kafka.topic: schema-changes.inventory
+    transforms: route
+    transforms.route.type: org.apache.kafka.connect.transforms.RegexRouter
+    transforms.route.regex: ([^.]+)\\.([^.]+)\\.([^.]+)
+    transforms.route.replacement: $1_$2_$3_json
